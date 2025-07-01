@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'http://localhost:5001'; // Assuming Flask server runs on port 5001
+    // Use relative URL since we're serving the frontend from the same domain as the API
+    const API_BASE_URL = ''; // Empty because we're using relative URLs
 
     const fileListUl = document.getElementById('fileList');
     const refreshFilesButton = document.getElementById('refreshFiles');
@@ -31,64 +32,94 @@ document.addEventListener('DOMContentLoaded', () => {
     async function apiCall(endpoint, method = 'GET', body = null, isFileUpload = false) {
         const options = {
             method,
-            headers: {}
+            headers: {},
+            credentials: 'same-origin',  // Send cookies with the request if needed
+            mode: 'same-origin',         // Ensure we're making same-origin requests
+            cache: 'no-cache',           // Always fetch fresh data
+            referrerPolicy: 'no-referrer' // Don't send referrer header
         };
-        if (body) {
+        
+        try {
+            // Handle different types of requests
             if (isFileUpload) {
-                // Body is already FormData
+                // For file uploads, use FormData directly
                 options.body = body;
-            } else {
+                // Don't set Content-Type header - let the browser set it with the correct boundary
+            } else if (body) {
                 options.headers['Content-Type'] = 'application/json';
                 options.body = JSON.stringify(body);
             }
-        }
 
-        try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
-            const result = await response.json();
-            if (!response.ok) {
-                logMessage(`Error: ${result.error || response.statusText}`, true);
-                return null;
+            console.log(`Making ${method} request to ${endpoint}`, options);
+            const response = await fetch(`${API_BASE_URL}/api${endpoint}`, options);
+            
+            // Handle response
+            const contentType = response.headers.get('content-type');
+            let result;
+            
+            if (contentType && contentType.includes('application/json')) {
+                result = await response.json();
+            } else {
+                const text = await response.text();
+                try {
+                    result = text ? JSON.parse(text) : { message: text };
+                } catch (e) {
+                    result = { message: text };
+                }
             }
-            logMessage(`Success: ${method} ${endpoint} - ${result.message || JSON.stringify(result)}`);
+            
+            if (!response.ok) {
+                const errorMsg = result.error || result.message || response.statusText || 'Unknown error';
+                throw new Error(`HTTP ${response.status}: ${errorMsg}`);
+            }
+            
+            console.log(`API ${endpoint} response:`, result);
             return result;
+            
         } catch (error) {
-            logMessage(`Network or API call error: ${error.message}`, true);
-            return null;
+            console.error(`API call to ${endpoint} failed:`, error);
+            logMessage(`Error: ${error.message}`, true);
+            throw error; // Re-throw to allow caller to handle
         }
     }
 
     // --- File Listing ---
     async function fetchAndDisplayFiles() {
-        const result = await apiCall('/files/list');
-        fileListUl.innerHTML = ''; // Clear existing list
-        if (result && result.files) {
-            if (result.files.length === 0) {
-                fileListUl.innerHTML = '<li>No files found.</li>';
+        try {
+            const result = await apiCall('/files/list');
+            fileListUl.innerHTML = ''; // Clear existing list
+            
+            if (result && Array.isArray(result.files)) {
+                if (result.files.length === 0) {
+                    fileListUl.innerHTML = '<li>No files found.</li>';
+                } else {
+                    result.files.forEach(filename => {
+                        const li = document.createElement('li');
+                        li.textContent = filename;
+
+                        const actionsDiv = document.createElement('div');
+                        actionsDiv.className = 'file-actions';
+
+                        const viewButton = document.createElement('button');
+                        viewButton.textContent = 'View/Edit';
+                        viewButton.onclick = () => loadFileForEditing(filename);
+                        actionsDiv.appendChild(viewButton);
+
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.onclick = () => deleteFile(filename);
+                        actionsDiv.appendChild(deleteButton);
+
+                        li.appendChild(actionsDiv);
+                        fileListUl.appendChild(li);
+                    });
+                }
             } else {
-                result.files.forEach(filename => {
-                    const li = document.createElement('li');
-                    li.textContent = filename;
-
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'file-actions';
-
-                    const viewButton = document.createElement('button');
-                    viewButton.textContent = 'View/Edit';
-                    viewButton.onclick = () => loadFileForEditing(filename);
-                    actionsDiv.appendChild(viewButton);
-
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.onclick = () => deleteFile(filename);
-                    actionsDiv.appendChild(deleteButton);
-
-                    li.appendChild(actionsDiv);
-                    fileListUl.appendChild(li);
-                });
+                throw new Error('Invalid response format from server');
             }
-        } else {
-            fileListUl.innerHTML = '<li>Error loading files.</li>';
+        } catch (error) {
+            console.error('Error fetching files:', error);
+            fileListUl.innerHTML = '<li>Error loading files. Check console for details.</li>';
         }
     }
 

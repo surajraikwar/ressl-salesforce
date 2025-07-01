@@ -1,41 +1,103 @@
-**Run the MCP Server:**
+# MCP (Managed Content Platform)
 
-1. Open a terminal.
-2. Navigate to the mcp_project/mcp_server directory.
-3. Run the Flask app: python app.py
-4. You should see output indicating the server is running, likely on http://127.0.0.1:5001 (or http://localhost:5001). The mcp_uploads folder will be created inside mcp_server if it's not there.
+A web-based file management system with a Flask backend and a simple HTML/JavaScript frontend.
 
-**Access the MCP Client:**
+## Prerequisites
 
-1. Open your web browser.
-2. Open the mcp_project/mcp_client/index.html file. You can usually do this by dragging the file into a browser window or using File -> Open File... in the browser menu.
+- Python 3.7+
+- Flask
+- Modern web browser
 
-**Functionality to Test:**
+## Setup and Installation
 
-- File Listing:
-- - Click "Refresh File List". Initially, it should be empty.
-- Create Single File:
-- - Enter a filename (e.g., test1.txt).
-- - Enter some content.
-- - Click "Create File".
-- - The file should appear in the "Managed Files" list.
-- - Check the mcp_project/mcp_server/mcp_uploads directory to see if the actual file was created.
-- Upload Multiple Files:
-- - Click the "Choose Files" input and select one or more text files from your computer.
-- - Click "Upload Selected Files".
-- - The files should appear in the list.
-- View/Edit File:
-- - Click "View/Edit" next to a file in the list.
-- - Its content should load into the "View/Edit File" text area.
-- - Modify the content directly in the text area.
-- - Click "Save Changes to Server". Verify the message and, if possible, check the file content on the server.
-- Edit via Prompt:
-- - With a file loaded, type a command like REPLACE 'some text' WITH 'other text' into the "Edit via Prompt" input (ensure the text you want to replace actually exists in the loaded file content).
-- - Click "Apply Prompt to Content". The content in the text area should update.
-- - Click "Save Changes to Server" to persist.
-- Delete File:
-- - Click "Delete" next to a file. Confirm the action.
-- - The file should be removed from the list and from the server's mcp_uploads folder.
-- Server Messages:
-- - Monitor the "Server Messages" area in the client for feedback from API calls.
-- - Check the Flask server's terminal output for request logs and any potential errors.
+### Backend Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ressl-salesforce/mcp_server
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt  # If you have a requirements file
+   ```
+
+3. **Run the MCP Server**
+   ```bash
+   python app.py
+   ```
+
+4. **Verify the server is running**
+   - The server will start on `http://127.0.0.1:5001` by default
+   - The `mcp_uploads` directory will be automatically created if it doesn't exist
+
+### Frontend Setup
+
+1. **Open the client interface**
+   - Navigate to `mcp_project/mcp_client/index.html`
+   - You can open it by:
+     - Dragging the file into a web browser
+     - Using `File -> Open File...` in your browser
+     - Or using a local web server
+
+## Features
+
+### File Management
+- **List Files**: View all managed files
+- **Create Files**: Create new text files with custom content
+- **Upload Files**: Upload multiple files at once
+- **View/Edit**: View and modify file contents directly
+- **Delete Files**: Remove files from the system
+
+### Advanced Editing
+- **Text Replacement**: Use commands to perform find-and-replace operations
+- **Real-time Preview**: See changes before saving
+- **Server Feedback**: Get immediate feedback on all operations
+
+## Usage Guide
+
+### Basic Operations
+
+1. **Viewing Files**
+   - Click "Refresh File List" to see all available files
+   - Click "View/Edit" next to any file to view or modify its contents
+
+2. **Creating Files**
+   - Enter a filename (e.g., `example.txt`)
+   - Add your content in the text area
+   - Click "Create File" to save
+
+3. **Uploading Files**
+   - Click "Choose Files" and select one or more files
+   - Click "Upload Selected Files" to add them to the system
+
+### Advanced Features
+
+#### Editing Files
+1. Load a file using "View/Edit"
+2. Make changes in the text area
+3. Click "Save Changes to Server" to update
+
+#### Using Edit Commands
+1. Load a file using "View/Edit"
+2. Enter a command in the "Edit via Prompt" field, for example:
+   ```
+   REPLACE 'old text' WITH 'new text'
+   ```
+3. Click "Apply Prompt to Content" to preview changes
+4. Click "Save Changes to Server" to confirm
+
+## Troubleshooting
+
+- **Server Not Starting**: Ensure port 5001 is available and no other service is using it
+- **File Upload Issues**: Check browser console for JavaScript errors
+- **Changes Not Saving**: Verify the `mcp_uploads` directory has write permissions
+
+## License
+
+[Specify your license here]
+
+## Contributing
+
+[Add contribution guidelines if applicable]

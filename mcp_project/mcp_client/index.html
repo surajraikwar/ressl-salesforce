@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP File Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>MCP File Manager</h1>
+
+    <div class="container">
+        <div class="section">
+            <h2>Managed Files</h2>
+            <button id="refreshFiles">Refresh File List</button>
+            <ul id="fileList">
+                <!-- File items will be populated here by JavaScript -->
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Upload/Create Files</h2>
+            <p>Select multiple files to upload, or create one by one.</p>
+            <input type="file" id="fileUploadInput" multiple>
+            <button id="uploadFilesButton">Upload Selected Files</button>
+            <hr>
+            <h3>Create Single File</h3>
+            <input type="text" id="createFilename" placeholder="Enter filename (e.g., new.txt)">
+            <textarea id="createFileContent" placeholder="Enter file content"></textarea>
+            <button id="createFileButton">Create File</button>
+        </div>
+
+        <div class="section">
+            <h2>View/Edit File</h2>
+            <p>Select a file from the list above to view or edit its content.</p>
+            <h3 id="currentFileName">No file selected</h3>
+            <textarea id="fileContentArea" placeholder="File content will appear here..."></textarea>
+
+            <h3>Edit via Prompt</h3>
+            <input type="text" id="editPrompt" placeholder="e.g., REPLACE 'old text' WITH 'new text'">
+            <button id="applyEditPromptButton">Apply Prompt to Content</button>
+            <button id="saveChangesButton" disabled>Save Changes to Server</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Server Messages</h2>
+        <pre id="serverMessages"></pre>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
